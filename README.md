@@ -8,7 +8,7 @@ Ansible role to install and configure Cassandra (DataStax Community Edition).
 ## Examples
 
 ```
-- hosts: loghost
+- hosts: dbhost
 
   vars:
     cassandra_version: 2.2.5
