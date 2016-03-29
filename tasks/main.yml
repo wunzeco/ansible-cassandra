@@ -1,0 +1,70 @@
+---
+
+- name: Download and install cassandra apt public signing key
+  apt_key: url="{{ cassandra_signing_key_url }}" state=present
+
+
+- name: Add cassandra apt repository definition to apt sources list
+  apt_repository: repo="{{ cassandra_apt_repo }}" update_cache=yes state=present
+
+- name: Install cassandra
+  apt: name="cassandra={{ cassandra_version }}" state=present
+  register: install
+
+- name: Check for pointers of first install - default cluster_name
+  shell: grep cluster_name {{ cassandra_conf_dir }}/cassandra.yaml
+  register: result
+
+- debug: var=result
+
+- name: Stop cassandra
+  service: name=cassandra state=stopped
+  when: install|changed and result.stdout.find('Test Cluster') != -1
+
+- name: Remove default cluster_name from the system table
+  file: path={{ cassandra_home_dir }}/data state=absent
+  when: install|changed and result.stdout.find('Test Cluster') != -1
+
+- name: Install cassandra datastax community package
+  apt: name="dsc{{ cassandra_dsc_pkg_suffix }}={{ cassandra_dsc_version }}" state=present
+
+- name: Create cassandra.yaml config file
+  template: 
+    src:   cassandra.yaml.j2
+    dest:  "{{ cassandra_conf_dir }}/cassandra.yaml"
+    owner: root
+    group: root
+    mode:  0644
+  notify: 
+    - Restart cassandra
+
+- name: Create other cassandra config files
+  template: 
+    src:   "{{ item }}.j2"
+    dest:  "{{ cassandra_conf_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+  with_items:
+    - cassandra-env.sh
+    - cassandra-rackdc.properties
+    - cassandra-topology.properties
+    - cassandra-topology.yaml
+    - commitlog_archiving.properties
+    - logback-tools.xml
+    - logback.xml
+  notify: 
+    - Restart cassandra
+
+- name: Create cassandra default settings file
+  template: 
+    src:   etc.default.cassandra.j2
+    dest:  "/etc/default/cassandra"
+    owner: root
+    group: root
+    mode:  0644
+  notify: 
+    - Restart cassandra
+   
+- name: Start cassandra
+  service: name=cassandra enabled=yes state=started
