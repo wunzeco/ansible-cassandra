@@ -524,7 +524,7 @@ native_transport_max_concurrent_connections: {{ cassandra_native_transport_max_c
 native_transport_max_concurrent_connections_per_ip: {{ cassandra_native_transport_max_concurrent_connections_per_ip|default('-1') }}
 
 # Whether to start the thrift rpc server.
-start_rpc: {{ cassandra_start_rpc|default(false) }}
+start_rpc: {{ cassandra_start_rpc|default(false)|lower }}
 
 # The address or interface to bind the Thrift RPC service and native transport
 # server to.
@@ -567,7 +567,7 @@ broadcast_rpc_address: {{ cassandra_broadcast_rpc_address }}
 {% endif %}
 
 # enable or disable keepalive on rpc/native connections
-rpc_keepalive: {{ cassandra_rpc_keepalive|default('true') }}
+rpc_keepalive: {{ cassandra_rpc_keepalive|default('true')|lower }}
 
 # Cassandra provides two out-of-the-box options for the RPC Server:
 #
