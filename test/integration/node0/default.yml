@@ -7,6 +7,8 @@
     cassandra_dsc_version: 2.2.5-1
     cassandra_cluster_name: kitchenCluster
     cassandra_seeds: [ "{{ ansible_eth1.ipv4.address }}" ]
+    cassandra_listen_address: "{{ ansible_eth1.ipv4.address }}"
+    cassandra_rpc_address: "{{ ansible_eth1.ipv4.address }}"
 
   roles:
     - wunzeco.java
