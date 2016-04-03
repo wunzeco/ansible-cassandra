@@ -68,3 +68,9 @@ end
 describe service('cassandra') do
   it { should be_running }
 end
+
+# run nodetool status and test number of nodes = 2
+describe command("nodetool status | grep ^U | wc -l") do
+  its(:exit_status) { should eq 0 }
+  its(:stdout) { should match '2' }
+end
