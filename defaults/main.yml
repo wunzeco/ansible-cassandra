@@ -26,6 +26,7 @@ cassandra_install_tools: false
 ###########################
 ##  Config - cassandra.yaml
 #
+cassandra_reinitialize_cluster: false           # Careful!!! This will destroy any current cluster state & data 
 cassandra_cluster_name: ChangeMeCluster
 cassandra_num_tokens: 256
 cassandra_initial_token: 
@@ -63,8 +64,8 @@ cassandra_commitlog_sync_period_in_ms: 10000
 cassandra_commitlog_segment_size_in_mb: 32
 cassandra_commitlog_compression: {}             # e.g. cassandra_commitlog_compression: { class_name: LZ4Compressor, parameters: [] }
 cassandra_seed_provider_class_name: org.apache.cassandra.locator.SimpleSeedProvider
-cassandra_seeds:                                # IP Addresses ONLY
-  - "{{ ansible_default_ipv4.address }}"
+cassandra_seeds: [ '127.0.0.1' ]                # IP Addresses ONLY
+cassandra_seeds_fqdns: []                       # This is a convenience to resolve FQDN of seeds if DNS is available
 cassandra_concurrent_reads: 32
 cassandra_concurrent_writes: 32
 cassandra_concurrent_counter_writes: 32

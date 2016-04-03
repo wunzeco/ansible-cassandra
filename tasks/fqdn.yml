@@ -1,0 +1,13 @@
+---
+
+- name: Resolve cassandra seeds FQDNs to IPs
+  shell: host {{ item }} | tail -1 | sed -e 's/.*has address \(.*\)/\1/'
+  with_items: "{{ cassandra_seeds_fqdns }}"
+  register: ips
+
+- debug: var=ips
+
+- name: Make a list and assign to cassandra_seeds var
+  set_fact: cassandra_seeds="{{ ips.results | map(attribute='stdout') | list }}"
+
+- debug: var=cassandra_seeds

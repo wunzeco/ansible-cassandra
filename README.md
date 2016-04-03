@@ -21,6 +21,23 @@ Ansible role to install and configure Cassandra (DataStax Community Edition).
   roles:
     - wunzeco.cassandra
 ```
+> **INFO:** 
+>
+> 		If your seed nodes have DNS resolveable FQDNs, you may use 
+>		**cassandra_seeds_fqdn** (instead of cassandra_seeds).
+
+## Testing
+
+To run integration tests of this role
+
+```
+kitchen verify && kitchen destroy
+```
+
+> **Note:**
+>   `kitchen test` command is not appropriate for this role because both kitchen
+>    suites (instances) need to be up and running for all tests to pass.
+
 
 ## Dependencies:
 

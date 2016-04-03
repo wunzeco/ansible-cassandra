@@ -19,14 +19,17 @@
 
 - name: Stop cassandra
   service: name=cassandra state=stopped
-  when: install|changed and result.stdout.find('Test Cluster') != -1
+  when: install|changed and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
 
 - name: Remove default cluster_name from the system table
   file: path={{ cassandra_home_dir }}/data state=absent
-  when: install|changed and result.stdout.find('Test Cluster') != -1
+  when: install|changed and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
 
 - name: Install cassandra datastax community package
   apt: name="dsc{{ cassandra_dsc_pkg_suffix }}={{ cassandra_dsc_version }}" state=present
+
+- include: fqdns.yml
+  when: cassandra_seeds_fqdns
 
 - name: Create cassandra.yaml config file
   template: 
