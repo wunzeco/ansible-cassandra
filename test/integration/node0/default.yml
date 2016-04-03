@@ -9,6 +9,7 @@
     cassandra_seeds: [ "{{ ansible_eth1.ipv4.address }}" ]
     cassandra_listen_address: "{{ ansible_eth1.ipv4.address }}"
     cassandra_rpc_address: "{{ ansible_eth1.ipv4.address }}"
+    cassandra_reinitialize_cluster: true
 
   roles:
     - wunzeco.java
