@@ -28,7 +28,7 @@
 - name: Install cassandra datastax community package
   apt: name="dsc{{ cassandra_dsc_pkg_suffix }}={{ cassandra_dsc_version }}" state=present
 
-- include: fqdns.yml
+- include: fqdn.yml
   when: cassandra_seeds_fqdns
 
 - name: Create cassandra.yaml config file
