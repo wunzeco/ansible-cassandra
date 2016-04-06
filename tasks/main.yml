@@ -22,8 +22,12 @@
   when: install|changed and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
 
 - name: Remove default cluster_name from the system table
-  file: path={{ cassandra_home_dir }}/data state=absent
+  file: path={{ cassandra_home_dir }}/{{ item }} state=absent
   when: install|changed and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
+  with_items:
+    - data
+    - commitlog
+    - saved_caches
 
 - name: Install cassandra datastax community package
   apt: name="dsc{{ cassandra_dsc_pkg_suffix }}={{ cassandra_dsc_version }}" state=present
