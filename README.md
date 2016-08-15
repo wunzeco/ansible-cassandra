@@ -1,7 +1,7 @@
 Cassandra
 ========
 
-Ansible role to install and configure Cassandra (DataStax Community Edition).
+Ansible role to install and configure Datastax Distribution of Apache Cassandra.
 
 *Note:* Recommended Java version is 8
 
@@ -11,8 +11,7 @@ Ansible role to install and configure Cassandra (DataStax Community Edition).
 - hosts: dbhost
 
   vars:
-    cassandra_version: 2.2.5
-    cassandra_dsc_version: 2.2.5-1
+    cassandra_version: 3.7.0
     cassandra_cluster_name: myAwesomeCluster
     cassandra_seeds: [ "seedIp1", "seedIp2" ]  			# List of IP Addresses ONLY
     cassandra_listen_address: "{{ ansible_eth0.ipv4.address }}"
@@ -25,6 +24,11 @@ Ansible role to install and configure Cassandra (DataStax Community Edition).
 >
 > 		If your seed nodes have DNS resolveable FQDNs, you may use 
 >		**cassandra_seeds_fqdn** (instead of cassandra_seeds).
+
+> **WARNING:** 
+>
+> 		Support for Cassandra (Datastax Community Edition) will be removed soon!!!
+
 
 ## Testing
 

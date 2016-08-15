@@ -14,14 +14,14 @@ cassandra_extra_classpath: []
 
 ############
 ##  Package
-cassandra_version: 2.2.5
+cassandra_distro:  ddc          # dsc or ddc
+cassandra_version: 3.7.0
 cassandra_signing_key_url: "https://debian.datastax.com/debian/repo_key"
-cassandra_apt_repo: "deb http://debian.datastax.com/community stable main"
+cassandra_apt_repo: "deb http://debian.datastax.com/datastax-ddc {{ cassandra_version.split('.')[0:2]|join('.') }} main"
 
-cassandra_dsc_version: 2.2.5-1
+cassandra_dsc_version:  "{{ cassandra_version }}-1"
 cassandra_dsc_pkg_suffix: "{{ cassandra_version.split('.')[0:2]|join('') }}"
-cassandra_tools_version: "{{ cassandra_version }}"
-cassandra_install_tools: false
+cassandra_dsc_apt_repo: "deb http://debian.datastax.com/community stable main"
 
 ###########################
 ##  Config - cassandra.yaml
@@ -131,7 +131,7 @@ cassandra_cas_contention_timeout_in_ms: 1000
 cassandra_truncate_request_timeout_in_ms: 60000
 cassandra_request_timeout_in_ms: 10000
 cassandra_cross_node_timeout: false
-cassandra_streaming_socket_timeout_in_ms: 3600000
+cassandra_streaming_socket_timeout_in_ms: 86400000
 cassandra_phi_convict_threshold:                # leave blank to allow Cassandra auto-set
 cassandra_endpoint_snitch: SimpleSnitch
 cassandra_dynamic_snitch_update_interval_in_ms: 100
@@ -166,13 +166,32 @@ cassandra_client_encryption_options:
   # algorithm: SunX509
   # store_type: JKS
   # cipher_suites: [TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA]
-cassandra_internode_compression: all
+cassandra_internode_compression: dc
 cassandra_inter_dc_tcp_nodelay: false
 cassandra_tracetype_query_ttl: 86400
 cassandra_tracetype_repair_ttl: 604800
-cassandra_gc_warn_threshold_in_ms:              # leave blank to allow Cassandra auto-set
+cassandra_gc_warn_threshold_in_ms: 1000
 cassandra_enable_user_defined_functions: false
+cassandra_scripted_enable_user_defined_functions: false
 cassandra_windows_timer_interval: 1
+cassandra_hinted_handoff_disabled_datacenters: []
+cassandra_hints_directory: "{{ cassandra_home_dir }}/data/hints"
+cassandra_hints_flush_period_in_ms: 10000
+cassandra_max_hints_file_size_in_mb: 128
+cassandra_hints_compression: []
+#cassandra_hints_compression: 
+#  - class_name:
+#    parameters: []
+cassandra_credentials_validity_in_ms: 2000
+cassandra_credentials_update_interval_in_ms:
+cassandra_prepared_statements_cache_size_mb: 
+cassandra_thrift_prepared_statements_cache_size_mb:
+cassandra_concurrent_materialized_view_writes: 32
+cassandra_buffer_pool_use_heap_if_exhausted: true
+cassandra_disk_optimization_strategy: ssd
+cassandra_column_index_cache_size_in_kb: 2
+cassandra_unlogged_batch_across_partitions_warn_threshold: 10
+cassandra_max_value_size_in_mb: 256
 
 #############################
 ##  Config - cassandra-env.sh
