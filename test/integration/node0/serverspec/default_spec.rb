@@ -13,11 +13,7 @@ describe user('cassandra') do
   it { should belong_to_group 'cassandra' }
 end
 
-describe package('cassandra') do
-  it { should be_installed }
-end
-
-describe package('dsc22') do
+describe package('datastax-ddc') do
   it { should be_installed }
 end
 
