@@ -1,11 +1,10 @@
 ---
 
-- name: Deprecation Warning
-  debug: msg="Consider Datastax DDC. Support for Cassandra 3.0.x and earlier will be removed soon!"
+- name: Cassandra Distro
+  debug: msg="Cassandra v{{ cassandra_version }} - Datastax Community Edition"
 
 - name: Download and install cassandra apt public signing key
   apt_key: url="{{ cassandra_signing_key_url }}" state=present
-
 
 - name: Add cassandra apt repository definition to apt sources list
   apt_repository: repo="{{ cassandra_dsc_apt_repo }}" update_cache=yes state=present
@@ -82,6 +81,20 @@
     owner: root
     group: root
     mode:  0644
+  notify: 
+    - Restart cassandra
+
+- name: Ensure correct cassandra directories ownership and permission
+  file:
+    path:  "{{ item }}"
+    owner: "{{ cassandra_user }}"
+    group: "{{ cassandra_group }}"
+    mode:  0755
+    state: directory
+  with_items:
+    - "{{ cassandra_log_dir }}"
+    - "{{ cassandra_home_dir }}"
+    - "{{ cassandra_pid_dir }}"
   notify: 
     - Restart cassandra
    

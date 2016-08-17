@@ -68,6 +68,20 @@
     mode:  0644
   notify: 
     - Restart cassandra
+
+- name: Ensure correct cassandra directories ownership and permission
+  file:
+    path:  "{{ item }}"
+    owner: "{{ cassandra_user }}"
+    group: "{{ cassandra_group }}"
+    mode:  0755
+    state: directory
+  with_items:
+    - "{{ cassandra_log_dir }}"
+    - "{{ cassandra_home_dir }}"
+    - "{{ cassandra_pid_dir }}"
+  notify: 
+    - Restart cassandra
    
 - name: Start cassandra
   service: name=cassandra enabled=yes state=started
