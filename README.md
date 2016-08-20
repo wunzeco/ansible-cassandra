@@ -25,10 +25,6 @@ Ansible role to install and configure Datastax Distribution of Apache Cassandra.
 > 		If your seed nodes have DNS resolveable FQDNs, you may use 
 >		**cassandra_seeds_fqdn** (instead of cassandra_seeds).
 
-> **WARNING:** 
->
-> 		Support for Cassandra (Datastax Community Edition) will be removed soon!!!
-
 
 ## Testing
 
