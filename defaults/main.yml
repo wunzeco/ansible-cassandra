@@ -15,13 +15,19 @@ cassandra_extra_classpath: []
 ############
 ##  Package
 cassandra_distro:  ddc          # dsc or ddc
-cassandra_version: 3.7.0
+cassandra_version: "3.7.0"
+cassandra_major_version: "{{ cassandra_version.split('.')|first }}"
+cassandra_minor_version: "{{ cassandra_version.split('.')[1] }}"
+cassandra_repo_version:  "{{ cassandra_major_version }}.{{ cassandra_minor_version }}"
 cassandra_signing_key_url: "https://debian.datastax.com/debian/repo_key"
 cassandra_apt_repo: "deb http://debian.datastax.com/datastax-ddc {{ cassandra_version.split('.')[0:2]|join('.') }} main"
+cassandra_yum_repo_baseurl: "http://rpm.datastax.com/datastax-ddc/{{ cassandra_repo_version }}"
+#cassandra_yum_repo_baseurl: "http://rpm.datastax.com/datastax-ddc/3.version_number"
 
 cassandra_dsc_version:  "{{ cassandra_version }}-1"
 cassandra_dsc_pkg_suffix: "{{ cassandra_version.split('.')[0:2]|join('') }}"
 cassandra_dsc_apt_repo: "deb http://debian.datastax.com/community stable main"
+cassandra_dsc_yum_repo_baseurl: "http://rpm.datastax.com/community"
 
 ###########################
 ##  Config - cassandra.yaml

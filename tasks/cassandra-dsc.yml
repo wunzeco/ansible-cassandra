@@ -3,15 +3,41 @@
 - name: Cassandra Distro
   debug: msg="Cassandra v{{ cassandra_version }} - Datastax Community Edition"
 
-- name: Download and install cassandra apt public signing key
+- name: Download and install cassandra apt public signing key | Debian
   apt_key: url="{{ cassandra_signing_key_url }}" state=present
+  when: ansible_os_family|lower == 'debian'
 
-- name: Add cassandra apt repository definition to apt sources list
+- name: Add cassandra apt repository definition to apt sources list | Debian
   apt_repository: repo="{{ cassandra_dsc_apt_repo }}" update_cache=yes state=present
+  when: ansible_os_family|lower == 'debian'
 
-- name: Install cassandra
+- name: Install cassandra | Debian
   apt: name="cassandra={{ cassandra_version }}" state=present
-  register: install
+  when: ansible_os_family|lower == 'debian'
+  register: deb_install
+
+- name: Install cassandra datastax community package | Debian
+  apt: name="dsc{{ cassandra_dsc_pkg_suffix }}={{ cassandra_dsc_version }}" state=present
+  when: ansible_os_family|lower == 'debian'
+
+- name: Add cassandra yum repository configuration | RedHat
+  template:
+    src:   datastax-dsc.yum.repo.j2
+    dest:  /etc/yum.repos.d/datastax.repo
+    owner: root
+    group: root
+    mode:  0644
+  when: ansible_os_family|lower == 'redhat'
+
+- name: Install cassandra | RedHat
+  yum: name="cassandra{{ cassandra_dsc_pkg_suffix }}-{{ cassandra_version }}" state=present
+  when: ansible_os_family|lower == 'redhat'
+  register: rpm_install
+
+- name: Install cassandra datastax community package | RedHat
+  yum: name="dsc{{ cassandra_dsc_pkg_suffix }}-{{ cassandra_dsc_version }}" state=present
+  when: ansible_os_family|lower == 'redhat'
+  register: rpm_install
 
 - name: Check for pointers of first install - default cluster_name
   shell: grep cluster_name {{ cassandra_conf_dir }}/cassandra.yaml
@@ -19,16 +45,17 @@
 
 - debug: var=result
 
-- name: Install cassandra datastax community package
-  apt: name="dsc{{ cassandra_dsc_pkg_suffix }}={{ cassandra_dsc_version }}" state=present
+- name: Reload systemd for cassandra | Redhat
+  shell: systemctl daemon-reload
+  when: rpm_install|changed
 
 - name: Stop cassandra if first install
   service: name=cassandra state=stopped
-  when: install|changed and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
+  when: (deb_install|changed or rpm_install|changed) and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
 
 - name: Remove default cluster_name from the system table of first install
   file: path={{ cassandra_home_dir }}/{{ item }} state=absent
-  when: install|changed and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
+  when: (deb_install|changed or rpm_install|changed) and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
   with_items:
     - data
     - commitlog
@@ -73,6 +100,14 @@
     - logback.xml
   notify: 
     - Restart cassandra
+
+- name: Create cassandra triggers directory
+  file:
+    path:  "{{ cassandra_conf_dir }}/triggers"
+    owner: "{{ cassandra_user }}"
+    group: "{{ cassandra_group }}"
+    mode:  0755
+    state: directory
 
 - name: Create cassandra default settings file
   template: 

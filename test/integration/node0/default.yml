@@ -2,14 +2,26 @@
 - hosts: test-kitchen
 
   vars:
-    java_package: oracle-java8-installer
+    java_package: oracle-java8-installer      # for ubuntu or debian
+    java_oracle_rpm_download_url: "http://download.oracle.com/otn-pub/java/jdk/8u60-b27/jdk-8u60-linux-x64.rpm"     # for centos or redhat
+    #cassandra_distro: dsc
+    #cassandra_version: 2.2.5
     cassandra_version: 3.7.0
     cassandra_cluster_name: kitchenCluster
-    cassandra_seeds: [ "{{ ansible_eth1.ipv4.address }}" ]
     cassandra_listen_address: "{{ ansible_eth1.ipv4.address }}"
-    cassandra_rpc_address: "{{ ansible_eth1.ipv4.address }}"
+    cassandra_rpc_address:    "{{ cassandra_listen_address }}"
+    cassandra_seeds:          [ "{{ cassandra_listen_address }}" ]
     cassandra_reinitialize_cluster: true
+
+  pre_tasks:
+    - name: Set cassandra listen address | RedHat
+      set_fact: cassandra_listen_address="{{ ansible_enp0s8.ipv4.address }}"
+      when: ansible_os_family|lower == 'redhat'
 
   roles:
     - wunzeco.java
     - ansible-cassandra
+
+  post_tasks:
+    - name: Wait for cassandra to start
+      wait_for: host={{ cassandra_listen_address }} port={{ cassandra_storage_port }}

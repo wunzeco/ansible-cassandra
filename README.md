@@ -31,7 +31,8 @@ Ansible role to install and configure Datastax Distribution of Apache Cassandra.
 To run integration tests of this role
 
 ```
-kitchen verify && kitchen destroy
+PLATFORM=ubuntu                              # OR centos
+kitchen verify $PLATFORM && kitchen destroy $PLATFORM
 ```
 
 > **Note:**

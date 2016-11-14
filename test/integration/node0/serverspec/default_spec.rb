@@ -4,6 +4,10 @@ cassandra_log_dir = '/var/log/cassandra'
 cassandra_conf_dir = '/etc/cassandra'
 cassandra_home_dir = '/var/lib/cassandra'
 
+if os[:family] =~ /centos|redhat/
+  cassandra_conf_dir = '/etc/cassandra/conf'
+end
+
 describe group('cassandra') do
   it { should exist }
 end
@@ -31,7 +35,11 @@ end
 describe file(cassandra_conf_dir) do
   it { should be_directory }
   it { should be_mode 755 }
-  it { should be_owned_by 'root' }
+  if os[:family] =~ /centos|redhat/
+    it { should be_owned_by 'cassandra' }
+  else
+    it { should be_owned_by 'root' }
+  end
 end
 
 %w(
