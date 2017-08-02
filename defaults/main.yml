@@ -220,3 +220,7 @@ cassandra_restore_command: ''
 cassandra_restore_dir: ''
 cassandra_restore_point_in_time: ''
 cassandra_precision: MICROSECONDS
+
+###########################################
+##  Config - logback.xml
+cassandra_log_pattern: "%-5level [%thread] %date{ISO8601} %F:%L - %msg%n"
