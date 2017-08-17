@@ -30,12 +30,16 @@
   when: ansible_os_family|lower == 'redhat'
 
 - name: Install cassandra | RedHat
-  yum: name="cassandra{{ cassandra_dsc_pkg_suffix }}-{{ cassandra_version }}" state=present
+  package:
+    name: "cassandra{{ cassandra_dsc_pkg_suffix }}-{{ cassandra_version }}"
+    state: present
   when: ansible_os_family|lower == 'redhat'
   register: rpm_install
 
 - name: Install cassandra datastax community package | RedHat
-  yum: name="dsc{{ cassandra_dsc_pkg_suffix }}-{{ cassandra_dsc_version }}" state=present
+  package:
+    name: "dsc{{ cassandra_dsc_pkg_suffix }}-{{ cassandra_dsc_version }}"
+    state: present
   when: ansible_os_family|lower == 'redhat'
   register: rpm_install
 

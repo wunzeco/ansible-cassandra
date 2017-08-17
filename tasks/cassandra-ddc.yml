@@ -23,7 +23,9 @@
   when: ansible_os_family|lower == 'redhat'
 
 - name: Install datastax distribution for apache cassandra | RedHat
-  yum: name="datastax-ddc-{{ cassandra_version }}" state=present
+  package:
+    name: "datastax-ddc-{{ cassandra_version }}" 
+  state: present
   when: ansible_os_family|lower == 'redhat'
   register: rpm_install
 
