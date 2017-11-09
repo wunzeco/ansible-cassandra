@@ -1,7 +1,7 @@
 ---
 
 - name: Resolve cassandra seeds FQDNs to IPs
-  shell: host {{ item }} | tail -1 | sed -e 's/.*has address \(.*\)/\1/'
+  shell: host {{ item }} | head -1 | sed -e 's/.*has address \(.*\)/\1/'
   with_items: "{{ cassandra_seeds_fqdns }}"
   register: ips
 
