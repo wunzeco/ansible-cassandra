@@ -1,6 +1,196 @@
 ---
 
 - include_vars: "{{ ansible_os_family|lower }}.yml"
+- include_vars: "{{ cassandra_distro }}.yml"
 
-- name: Cassandra Install
-  include: "cassandra-{{ cassandra_distro }}.yml"
+- name: Download and install cassandra apt public signing key | Debian
+  apt_key:
+    url: "{{ cassandra_signing_key_url }}"
+    state: present
+  when: ansible_os_family|lower == 'debian'
+
+- name: Add cassandra apt repository definition to apt sources list | Debian
+  apt_repository:
+    repo: "{{ cassandra_apt_repo }}"
+    update_cache: yes
+    state: present
+  when: ansible_os_family|lower == 'debian'
+
+- name: Install cassandra | Debian
+  apt:
+    name:  "{{ cassandra_package }}={{ cassandra_version }}"
+    state: present
+  when: ansible_os_family|lower == 'debian'
+  register: deb_install
+
+- name: Add cassandra yum repository config | RedHat
+  yum_repository:
+    name:          "{{ cassandra_package }}"
+    description:   "Apache Cassandra Repository"
+    baseurl:       "{{ cassandra_yum_repo_baseurl }}"
+    enabled:       yes
+    gpgcheck:      yes
+    gpgkey:        "{{ cassandra_signing_key_url }}"
+    repo_gpgcheck: yes
+  when: ansible_os_family|lower == 'redhat'
+
+- name: Install cassandra | RedHat
+  yum:
+    name: "{{ cassandra_package }}-{{ cassandra_version }}"
+    state: present
+  when: ansible_os_family|lower == 'redhat'
+  register: rpm_install
+
+- name: Check for pointers of first install - default cluster_name
+  shell: grep cluster_name {{ cassandra_conf_dir }}/cassandra.yaml
+  register: result
+  changed_when: False
+
+- debug: var=result
+
+- name: Reload systemd for cassandra
+  shell: systemctl daemon-reload
+  when: ansible_service_mgr == 'systemd' and (rpm_install|changed or deb_install|changed)
+
+- name: Stop cassandra if first install
+  service:
+    name: cassandra
+    state: stopped
+  when: (deb_install|changed or rpm_install|changed) and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
+
+- name: Remove default cluster_name from the system table of first install
+  file:
+    path:  "{{ cassandra_home_dir }}/{{ item }}"
+    state: absent
+  when: (deb_install|changed or rpm_install|changed) and result.stdout.find('Test Cluster') != -1 or cassandra_reinitialize_cluster
+  with_items:
+    - data
+    - commitlog
+    - saved_caches
+
+- include: fqdn.yml
+  when: cassandra_seeds_fqdns
+
+- name: Get stats of cassandra conf dir
+  stat:
+    path: "{{ cassandra_conf_dir }}"
+  register: sym
+
+#- debug: var=sym
+
+- name: Remove symlink file of cassandra conf dir
+  file:
+    path:  "{{ cassandra_conf_dir }}"
+    state: absent
+  when: sym.stat.islnk|default(false)
+
+- name: Ensure cassandra conf dir is created
+  file:
+    path:  "{{ cassandra_conf_dir }}"
+    owner: "{{ cassandra_user }}"
+    group: "{{ cassandra_group }}"
+    mode:  0755
+    state: directory
+  notify:
+    - Restart cassandra
+
+- name: Create cassandra.yaml config file | apache
+  template:
+    src:   cassandra.yaml.j2
+    dest:  "{{ cassandra_conf_dir }}/cassandra.yaml"
+    owner: root
+    group: root
+    mode:  0644
+  when: cassandra_version|version_compare('3.7.0', '>')
+  notify:
+    - Restart cassandra
+
+- name: Create other cassandra config files | apache
+  template:
+    src:   "{{ item }}.j2"
+    dest:  "{{ cassandra_conf_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode:  0644
+  with_items:
+    - cassandra-env.sh
+    - cassandra-rackdc.properties
+    - cassandra-topology.properties
+    - hotspot_compiler
+    - commitlog_archiving.properties
+    - jvm.options
+    - logback-tools.xml
+    - logback.xml
+  when: cassandra_version|version_compare('3.7.0', '>')
+  notify:
+    - Restart cassandra
+
+# NOTE: Remove the next two tasks when support for "ddc" cassandra distro is dropped
+- name: Create cassandra.yaml config file | ddc
+  template:
+    src:   ddc-cassandra.yaml.j2
+    dest:  "{{ cassandra_conf_dir }}/cassandra.yaml"
+    owner: root
+    group: root
+    mode:  0644
+  when: cassandra_version|version_compare('3.7.0', '<=')
+  notify:
+    - Restart cassandra
+
+- name: Create other cassandra config files | ddc
+  template:
+    src:   "{{ item }}.j2"
+    dest:  "{{ cassandra_conf_dir }}/{{ item|regex_replace('ddc-', '') }}"
+    owner: root
+    group: root
+    mode:  0644
+  with_items:
+    - ddc-cassandra-env.sh
+    - cassandra-rackdc.properties
+    - cassandra-topology.properties
+    - cassandra-topology.yaml
+    - commitlog_archiving.properties
+    - ddc-jvm.options
+    - logback-tools.xml
+    - logback.xml
+  when: cassandra_version|version_compare('3.7.0', '<=')
+  notify:
+    - Restart cassandra
+
+- name: Create cassandra triggers directory
+  file:
+    path:  "{{ cassandra_conf_dir }}/triggers"
+    owner: "{{ cassandra_user }}"
+    group: "{{ cassandra_group }}"
+    mode:  0755
+    state: directory
+
+- name: Create cassandra default settings file
+  template:
+    src:   etc.default.cassandra.j2
+    dest:  "/etc/default/cassandra"
+    owner: root
+    group: root
+    mode:  0644
+  notify:
+    - Restart cassandra
+
+- name: Ensure correct cassandra directories ownership and permission
+  file:
+    path:  "{{ item }}"
+    owner: "{{ cassandra_user }}"
+    group: "{{ cassandra_group }}"
+    mode:  0755
+    state: directory
+  with_items:
+    - "{{ cassandra_log_dir }}"
+    - "{{ cassandra_home_dir }}"
+    - "{{ cassandra_pid_dir }}"
+  notify:
+    - Restart cassandra
+
+- name: Start cassandra
+  service:
+    name: cassandra
+    enabled: yes
+    state: started

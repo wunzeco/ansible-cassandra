@@ -1,9 +1,14 @@
 Cassandra
 ========
 
-Ansible role to install and configure Datastax Distribution of Apache Cassandra.
+Ansible role to install and configure Apache Cassandra.
 
-*Note:* Recommended Java version is 8
+> *Note:*
+>     - Recommended Java version is 8
+>     - Support for datastax community edition dropped
+>     - Recommended `cassandra_distro` is `apache`
+>     - Support for ddc `cassandra_distro` to be deprecated soon
+
 
 ## Examples
 
@@ -11,7 +16,8 @@ Ansible role to install and configure Datastax Distribution of Apache Cassandra.
 - hosts: dbhost
 
   vars:
-    cassandra_version: 3.7.0
+    cassandra_distro: apache
+    cassandra_version: 3.11.2
     cassandra_cluster_name: myAwesomeCluster
     cassandra_seeds: [ "seedIp1", "seedIp2" ]  			# List of IP Addresses ONLY
     cassandra_listen_address: "{{ ansible_eth0.ipv4.address }}"
@@ -20,9 +26,9 @@ Ansible role to install and configure Datastax Distribution of Apache Cassandra.
   roles:
     - wunzeco.cassandra
 ```
-> **INFO:** 
+> **INFO:**
 >
-> 		If your seed nodes have DNS resolveable FQDNs, you may use 
+> 		If your seed nodes have DNS resolveable FQDNs, you may use
 >		**cassandra_seeds_fqdn** (instead of cassandra_seeds).
 
 
@@ -31,7 +37,7 @@ Ansible role to install and configure Datastax Distribution of Apache Cassandra.
 To run integration tests of this role
 
 ```
-PLATFORM=ubuntu                              # OR centos
+PLATFORM=ubuntu-1404            # other options - ubuntu-1604 or centos
 kitchen verify $PLATFORM && kitchen destroy $PLATFORM
 ```
 

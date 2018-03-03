@@ -4,8 +4,9 @@
   vars:
     java_package: oracle-java8-installer      # for ubuntu or debian
     java_oracle_rpm_download_url: "http://download.oracle.com/otn-pub/java/jdk/8u60-b27/jdk-8u60-linux-x64.rpm"     # for centos or redhat
-    #cassandra_distro: dsc
-    #cassandra_version: 2.2.5
+    #cassandra_distro: apache
+    #cassandra_version: 3.11.2
+    cassandra_distro: ddc
     cassandra_version: 3.7.0
     cassandra_cluster_name: kitchenCluster
     cassandra_listen_address: "{{ ansible_eth1.ipv4.address }}"
@@ -13,10 +14,17 @@
     cassandra_seeds:          [ "{{ cassandra_listen_address }}" ]
     cassandra_reinitialize_cluster: true
 
+  # NOTE:
+  #      cassandra 3.7.0 fails to start with java version "1.8.0_161" for reasons explained in
+  #      https://stackoverflow.com/questions/48328661/cant-start-cassandra-after-os-patch-up
+  #      and
+  #      https://issues.apache.org/jira/browse/CASSANDRA-14173
+  #
+  #      Fix is in cassandra 3.11.2
   pre_tasks:
     - name: Set cassandra listen address | RedHat
       set_fact: cassandra_listen_address="{{ ansible_enp0s8.ipv4.address }}"
-      when: ansible_os_family|lower == 'redhat'
+      when: ansible_service_mgr == 'systemd'
 
   roles:
     - wunzeco.java
