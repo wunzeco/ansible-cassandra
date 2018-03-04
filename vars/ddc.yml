@@ -1,0 +1,6 @@
+---
+
+cassandra_package: "datastax-ddc"
+cassandra_signing_key_url: "https://debian.datastax.com/debian/repo_key"
+cassandra_apt_repo: "deb http://debian.datastax.com/datastax-ddc {{ cassandra_version.split('.')[0:2]|join('.') }} main"
+cassandra_yum_repo_baseurl: "http://rpm.datastax.com/datastax-ddc/{{ cassandra_repo_version }}"

@@ -17,7 +17,7 @@ describe user('cassandra') do
   it { should belong_to_group 'cassandra' }
 end
 
-describe package('datastax-ddc') do
+describe package('cassandra') do
   it { should be_installed }
 end
 
@@ -35,11 +35,7 @@ end
 describe file(cassandra_conf_dir) do
   it { should be_directory }
   it { should be_mode 755 }
-  if os[:family] =~ /centos|redhat/
-    it { should be_owned_by 'cassandra' }
-  else
-    it { should be_owned_by 'root' }
-  end
+  it { should be_owned_by 'cassandra' }
 end
 
 %w(
@@ -57,7 +53,6 @@ end
   #{cassandra_conf_dir}/cassandra-env.sh
   #{cassandra_conf_dir}/cassandra-rackdc.properties
   #{cassandra_conf_dir}/cassandra-topology.properties
-  #{cassandra_conf_dir}/cassandra-topology.yaml
   #{cassandra_conf_dir}/commitlog_archiving.properties
   #{cassandra_conf_dir}/logback-tools.xml
   #{cassandra_conf_dir}/logback.xml
