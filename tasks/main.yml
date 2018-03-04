@@ -6,6 +6,7 @@
 - name: Download and install cassandra apt public signing key | Debian
   apt_key:
     url: "{{ cassandra_signing_key_url }}"
+    validate_certs: no
     state: present
   when: ansible_os_family|lower == 'debian'
 
@@ -33,6 +34,18 @@
     gpgkey:        "{{ cassandra_signing_key_url }}"
     repo_gpgcheck: yes
   when: ansible_os_family|lower == 'redhat'
+
+- name: Import cassandra rpm keys
+  rpm_key:
+    state: present
+    key: "{{ cassandra_signing_key_url }}"
+  register: import_key
+
+# Note: The task following task is a workaround for the error below:
+#       "Failure talking to yum: failure: repodata/repomd.xml from cassandra: [Errno 256] No more mirrors to try.\nhttps://www.apache.org/dist/cassandra/redhat/311x/repodata/repomd.xml: [Errno -1] repomd.xml signature could not be verified for cassandra"
+- name: Update repo cache for cassandra repo
+  command: yum -q makecache -y --disablerepo=* --enablerepo={{ cassandra_package }}
+  when: import_key|changed
 
 - name: Install cassandra | RedHat
   yum:
@@ -148,7 +161,7 @@
     - ddc-cassandra-env.sh
     - cassandra-rackdc.properties
     - cassandra-topology.properties
-    - cassandra-topology.yaml
+    - ddc-cassandra-topology.yaml
     - commitlog_archiving.properties
     - ddc-jvm.options
     - logback-tools.xml

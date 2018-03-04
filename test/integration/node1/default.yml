@@ -3,10 +3,10 @@
 
   vars:
     java_package: oracle-java8-installer
-    #cassandra_distro: apache
-    #cassandra_version: 3.11.2
-    cassandra_distro: ddc
-    cassandra_version: 3.7.0
+    cassandra_distro: apache
+    cassandra_version: 3.11.2
+    #cassandra_distro: ddc
+    #cassandra_version: 3.7.0
     cassandra_cluster_name: kitchenCluster
     cassandra_listen_address: "{{ ansible_eth1.ipv4.address }}"
     cassandra_rpc_address:    "{{ ansible_eth1.ipv4.address }}"

@@ -3,11 +3,10 @@
 
   vars:
     java_package: oracle-java8-installer      # for ubuntu or debian
-    java_oracle_rpm_download_url: "http://download.oracle.com/otn-pub/java/jdk/8u60-b27/jdk-8u60-linux-x64.rpm"     # for centos or redhat
-    #cassandra_distro: apache
-    #cassandra_version: 3.11.2
-    cassandra_distro: ddc
-    cassandra_version: 3.7.0
+    cassandra_distro: apache
+    cassandra_version: 3.11.2
+    #cassandra_distro: ddc
+    #cassandra_version: 3.7.0
     cassandra_cluster_name: kitchenCluster
     cassandra_listen_address: "{{ ansible_eth1.ipv4.address }}"
     cassandra_rpc_address:    "{{ cassandra_listen_address }}"
