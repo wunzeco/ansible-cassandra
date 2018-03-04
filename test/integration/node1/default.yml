@@ -9,7 +9,6 @@
     #cassandra_version: 3.7.0
     cassandra_cluster_name: kitchenCluster
     cassandra_listen_address: "{{ ansible_eth1.ipv4.address }}"
-    cassandra_rpc_address:    "{{ ansible_eth1.ipv4.address }}"
     cassandra_rpc_address:    "{{ cassandra_listen_address }}"
     cassandra_seeds:          [ "172.29.129.110" ]
     cassandra_reinitialize_cluster: true
