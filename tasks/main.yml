@@ -39,6 +39,7 @@
   rpm_key:
     state: present
     key: "{{ cassandra_signing_key_url }}"
+  when: ansible_os_family|lower == 'redhat'
   register: import_key
 
 # Note: The task following task is a workaround for the error below:
