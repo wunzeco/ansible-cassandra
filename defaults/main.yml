@@ -135,7 +135,7 @@ cassandra_truncate_request_timeout_in_ms: 60000
 cassandra_request_timeout_in_ms: 10000
 cassandra_slow_query_log_timeout_in_ms: 500
 cassandra_cross_node_timeout: false
-cassandra_streaming_socket_timeout_in_ms: 300
+cassandra_streaming_socket_timeout_in_ms: 86400000
 cassandra_phi_convict_threshold:                # leave blank to allow Cassandra auto-set
 cassandra_endpoint_snitch: SimpleSnitch
 cassandra_dynamic_snitch_update_interval_in_ms: 100
