@@ -160,13 +160,13 @@
     mode:  0644
   with_items:
     - ddc-cassandra-env.sh
-    - cassandra-rackdc.properties
-    - cassandra-topology.properties
+    - ddc-cassandra-rackdc.properties
+    - ddc-cassandra-topology.properties
     - ddc-cassandra-topology.yaml
-    - commitlog_archiving.properties
+    - ddc-commitlog_archiving.properties
     - ddc-jvm.options
-    - logback-tools.xml
-    - logback.xml
+    - ddc-logback-tools.xml
+    - ddc-logback.xml
   when: cassandra_version|version_compare('3.7.0', '<=')
   notify:
     - Restart cassandra
