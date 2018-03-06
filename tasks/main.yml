@@ -105,9 +105,6 @@
     group: "{{ cassandra_group }}"
     mode:  0755
     state: directory
-  when: cassandra_version|version_compare('3.7.0', '>')
-  notify:
-    - Restart cassandra
 
 - name: Create cassandra.yaml config file | apache
   template:
