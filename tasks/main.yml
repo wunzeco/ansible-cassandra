@@ -83,7 +83,7 @@
     - saved_caches
 
 - include: fqdn.yml
-  when: cassandra_seeds_fqdns
+  when: cassandra_seeds_fqdns|default([])
 
 - name: Get stats of cassandra conf dir
   stat:
